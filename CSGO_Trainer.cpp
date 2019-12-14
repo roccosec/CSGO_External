@@ -35,13 +35,6 @@ struct glowStruct
 	int glowStyle;
 } Glow;
 
-#define F4_Key 0x73
-#define F6_Key 0x75
-#define F7_Key 0x76
-#define F8_Key 0x77
-#define F9_Key 0x78
-#define F11_Key 0x7A
-
 // Bhop
 #define FL_ONGROUND 257
 bool b_true = true;
@@ -69,6 +62,9 @@ std::vector<int> playerlist;
 
 // Triggerbot
 int crosshairID;
+bool isAltHeld = false;
+#define KeyDown -32768
+#define KeyUp 0
 
 // Flash
 int flashDur = 0;
@@ -87,35 +83,15 @@ HANDLE hProcess = 0;
 
 int getPlayerTeam() {
 	int team;
-	ReadProcessMemory(hProcess, (PBYTE*)(val.ClocalPlayer + m_iTeamNum), &team, sizeof(myTeam), NULL);
+	ReadProcessMemory(hProcess, (BYTE*)(val.ClocalPlayer + m_iTeamNum), &team, sizeof(myTeam), NULL);
 	return team;
-}
-
-void JDAIWDIAJDAD()
-{
-	std::cout << "duawhduahwduwahduwhadhwa";
-	std::cout << "duawhduahwduwahduwhadhwa";
-	std::cout << "duawhduahwduwahduwhadhwa";
-	std::cout << "duawhduahwduwahduwhadhwa";
-	std::cout << "duawhduahwduwahduwhadhwa";
-	std::cout << "duawhduahwduwahduwhadhwa";
-}
-
-void JDddawdwaIWDIdwadawdadawdAJDAD()
-{
-	std::cout << "duawhduahwduwahduwhadhwa";
-	std::cout << "duawhduahwduwahduwhadhwa";
-	std::cout << "duawhduahwduwahduwhadhwa";
-	std::cout << "duawhduahwduwahduwhadhwa";
-	std::cout << "duawhduahwduwahduwhadhwa";
-	std::cout << "duawhduahwduwahduwhadhwa";
 }
 
 void output()
 {
 	system("CLS");
-	std::cout << "Game Found! Running Trainer..." << std::endl;
-	std::cout << "---------------------------------------------------------" << std::endl << std::endl << std::endl;
+	std::cout << "Game Found! Running Trainer... \n";
+	std::cout << "--------------------------------------------------------- \n \n \n";
 	if (bunnyHopStatus)
 	{
 		status = on;
@@ -124,7 +100,7 @@ void output()
 	{
 		status = off;
 	}
-	std::cout << "BHOP [F6] -> " << status << " <-" << std::endl << std::endl;
+	std::cout << "BHOP [F6] -> " << status << " <- \n \n";
 	if (glowStatus)
 	{
 		status = on;
@@ -133,7 +109,7 @@ void output()
 	{
 		status = off;
 	}
-	std::cout << "WallHack [F7] -> " << status << " <-" << std::endl << std::endl;
+	std::cout << "WallHack [F7] -> " << status << " <- \n \n";
 	if (brightnessStatus)
 	{
 		status = on;
@@ -142,7 +118,7 @@ void output()
 	{
 		status = off;
 	}
-	std::cout << "Brightness/Color Hack [F8] -> " << status << " <-" << std::endl << std::endl;
+	std::cout << "Brightness/Color Hack [F8] -> " << status << " <- \n \n";
 	if (triggerbotStatus)
 	{
 		status = on;
@@ -151,7 +127,7 @@ void output()
 	{
 		status = off;
 	}
-	std::cout << "TriggerBot [F9] -> " << status << " <-" << std::endl << std::endl;
+	std::cout << "TriggerBot [F9] -> " << status << " <- \n \n";
 	if (antiFlashStatus)
 	{
 		status = on;
@@ -160,24 +136,23 @@ void output()
 	{
 		status = off;
 	}
-	std::cout << "Anti-Flash [F11] -> " << status << " <-" << std::endl << std::endl << std::endl;
-	std::cout << std::endl << std::endl << "EXIT [F4]" << std::endl;
+	std::cout << "Anti-Flash [F11] -> " << status << " <- \n \n \n \n";
+	std::cout << "EXIT [F4] \n";
 }
 
 void bunnyHop()
 {
 	{
-		if (GetAsyncKeyState(F6_Key))
+		if (GetAsyncKeyState(VK_F6) & 1)
 		{
 			bunnyHopStatus = !bunnyHopStatus;
 			output();
-			Sleep(250);
 		}
 		if (!bunnyHopStatus)
 		{
 			return;
 		}
-		ReadProcessMemory(hProcess, (PBYTE*)(val.ClocalPlayer + m_fFlags), &m_fFlagsValue, sizeof(m_fFlagsValue), NULL);
+		ReadProcessMemory(hProcess, (BYTE*)(val.ClocalPlayer + m_fFlags), &m_fFlagsValue, sizeof(m_fFlagsValue), NULL);
 		if (m_fFlagsValue == FL_ONGROUND)
 		{
 			WriteProcessMemory(hProcess, (BYTE*)(val.moduleBase + dwForceJump), &b_true, sizeof(b_true), NULL);
@@ -195,32 +170,6 @@ struct ClrRender
 };
 ClrRender clrRenderEnemy;
 ClrRender clrRenderTeam;
-
-std::vector<int> entityList()
-{
-
-	return playerlist;
-}
-
-void setBrightness()
-{
-	float brightness = 5.0f;
-
-	int ptr;
-	ReadProcessMemory(hProcess, (PBYTE*)(val.engineModule + model_ambient_min), &ptr, sizeof(ptr), NULL);
-	int xorptr = *(int*)&brightness ^ ptr;
-	WriteProcessMemory(hProcess, (PBYTE*)(val.engineModule + model_ambient_min), &xorptr, sizeof(xorptr), NULL);
-}
-
-void resetBrightness()
-{
-	float brightness = 0.0f;
-
-	int ptr;
-	ReadProcessMemory(hProcess, (PBYTE*)(val.engineModule + model_ambient_min), &ptr, sizeof(ptr), NULL);
-	int xorptr = *(int*)&brightness ^ ptr;
-	WriteProcessMemory(hProcess, (PBYTE*)(val.engineModule + model_ambient_min), &xorptr, sizeof(xorptr), NULL);
-}
 
 void setColor()
 {
@@ -246,25 +195,49 @@ void setColor()
 
 	for (short int i = 1; i < 16; i++)
 	{
-		ReadProcessMemory(hProcess, (PBYTE*)(val.moduleBase + dwEntityList + i * 0x10), &entity, sizeof(entity), NULL);
+		ReadProcessMemory(hProcess, (BYTE*)(val.moduleBase + dwEntityList + i * 0x10), &entity, sizeof(entity), NULL);
 		if (entity != NULL)
 		{
-			ReadProcessMemory(hProcess, (PBYTE*)(entity + m_iTeamNum), &entTeam, sizeof(entTeam), NULL);
+			ReadProcessMemory(hProcess, (BYTE*)(entity + m_iTeamNum), &entTeam, sizeof(entTeam), NULL);
 			if (myTeam == entTeam)
 			{
-				WriteProcessMemory(hProcess, (PBYTE*)(entity + m_clrRender), &clrRenderTeam, sizeof(clrRenderTeam), NULL);
+				WriteProcessMemory(hProcess, (BYTE*)(entity + m_clrRender), &clrRenderTeam, sizeof(clrRenderTeam), NULL);
 			}
-			else 
+			else
 			{
-				WriteProcessMemory(hProcess, (PBYTE*)(entity + m_clrRender), &clrRenderEnemy, sizeof(clrRenderEnemy), NULL);
+				WriteProcessMemory(hProcess, (BYTE*)(entity + m_clrRender), &clrRenderEnemy, sizeof(clrRenderEnemy), NULL);
 			}
 		}
 	}
 }
 
+void setBrightness()
+{
+	float brightness = 5.0f;
+
+	int ptr;
+	ReadProcessMemory(hProcess, (BYTE*)(val.engineModule + model_ambient_min), &ptr, sizeof(ptr), NULL);
+	int xorptr = *(int*)&brightness ^ ptr;
+	WriteProcessMemory(hProcess, (BYTE*)(val.engineModule + model_ambient_min), &xorptr, sizeof(xorptr), NULL);
+
+	setColor();
+}
+
+void resetBrightness()
+{
+	float brightness = 0.0f;
+
+	int ptr;
+	ReadProcessMemory(hProcess, (BYTE*)(val.engineModule + model_ambient_min), &ptr, sizeof(ptr), NULL);
+	int xorptr = *(int*)&brightness ^ ptr;
+	WriteProcessMemory(hProcess, (BYTE*)(val.engineModule + model_ambient_min), &xorptr, sizeof(xorptr), NULL);
+
+	setColor();
+}
+
 glowStruct setGlowColor(glowStruct Glow, uintptr_t entity, int health)
 {
-	ReadProcessMemory(hProcess, (PBYTE*)(entity + m_bIsDefusing), &isDefusing, sizeof(isDefusing), NULL);
+	ReadProcessMemory(hProcess, (BYTE*)(entity + m_bIsDefusing), &isDefusing, sizeof(isDefusing), NULL);
 	if (isDefusing)
 	{
 		Glow.red = 1.0f;
@@ -285,40 +258,40 @@ glowStruct setGlowColor(glowStruct Glow, uintptr_t entity, int health)
 void setTeamGlow(uintptr_t entity, int index)
 {
 	glowStruct TGlow;
-	ReadProcessMemory(hProcess, (PBYTE*)(val.glowObject + (index * 0x38)), &TGlow, sizeof(TGlow), NULL);
+	ReadProcessMemory(hProcess, (BYTE*)(val.glowObject + (index * 0x38)), &TGlow, sizeof(TGlow), NULL);
 	
 	TGlow.blue = 1.0f;
 	TGlow.alpha = 1.0f;
 	TGlow.renderWhenOccluded = true;
 	TGlow.renderWhenUnOccluded = false;
-	WriteProcessMemory(hProcess, (PBYTE*)(val.glowObject + (index * 0x38)), &TGlow, sizeof(TGlow), NULL);
+	WriteProcessMemory(hProcess, (BYTE*)(val.glowObject + (index * 0x38)), &TGlow, sizeof(TGlow), NULL);
 
 }
 
 void setEnemyGlow(uintptr_t entity, int index, int health)
 {
 	glowStruct EGlow;
-	ReadProcessMemory(hProcess, (PBYTE*)(val.glowObject + (index * 0x38)), &EGlow, sizeof(EGlow), NULL);
+	ReadProcessMemory(hProcess, (BYTE*)(val.glowObject + (index * 0x38)), &EGlow, sizeof(EGlow), NULL);
 
 	EGlow = setGlowColor(EGlow, entity, health);
-	WriteProcessMemory(hProcess, (PBYTE*)(val.glowObject + (index * 0x38)), &EGlow, sizeof(EGlow), NULL);
+	WriteProcessMemory(hProcess, (BYTE*)(val.glowObject + (index * 0x38)), &EGlow, sizeof(EGlow), NULL);
 }
 
 void glow()
 {
-	ReadProcessMemory(hProcess, (PBYTE*)(val.moduleBase + dwGlowObjectManager), &val.glowObject, sizeof(val.glowObject), NULL);
+	ReadProcessMemory(hProcess, (BYTE*)(val.moduleBase + dwGlowObjectManager), &val.glowObject, sizeof(val.glowObject), NULL);
 	bool dormant = false;
 	for (short int i = 1; i < 16; i++)
 	{
-		ReadProcessMemory(hProcess, (PBYTE*)(val.moduleBase + dwEntityList + i * 0x10), &entity, sizeof(entity), NULL);
-		ReadProcessMemory(hProcess, (PBYTE*)(entity + m_bDormant), &dormant, sizeof(dormant), NULL);
+		ReadProcessMemory(hProcess, (BYTE*)(val.moduleBase + dwEntityList + i * 0x10), &entity, sizeof(entity), NULL);
+		ReadProcessMemory(hProcess, (BYTE*)(entity + m_bDormant), &dormant, sizeof(dormant), NULL);
 		if (entity != NULL && dormant == false)
 		{
-			ReadProcessMemory(hProcess, (PBYTE*)(entity + m_iHealth), &hp, sizeof(hp), NULL);
+			ReadProcessMemory(hProcess, (BYTE*)(entity + m_iHealth), &hp, sizeof(hp), NULL);
 			if (hp > 0)
 			{
-				ReadProcessMemory(hProcess, (PBYTE*)(entity + m_iGlowIndex), &glowIndex, sizeof(glowIndex), NULL);
-				ReadProcessMemory(hProcess, (PBYTE*)(entity + m_iTeamNum), &entityTeam, sizeof(entityTeam), NULL);
+				ReadProcessMemory(hProcess, (BYTE*)(entity + m_iGlowIndex), &glowIndex, sizeof(glowIndex), NULL);
+				ReadProcessMemory(hProcess, (BYTE*)(entity + m_iTeamNum), &entityTeam, sizeof(entityTeam), NULL);
 				if (myTeam == entityTeam)
 				{
 					// Friends
@@ -336,11 +309,10 @@ void glow()
 
 void antiFlash()
 {
-	if (GetAsyncKeyState(F11_Key))
+	if (GetAsyncKeyState(VK_F11) & 1)
 	{
 		antiFlashStatus = !antiFlashStatus;
 		output();
-		Sleep(250);
 	}
 
 	if (!antiFlashStatus)
@@ -348,33 +320,54 @@ void antiFlash()
 		return;
 	}
 
-	ReadProcessMemory(hProcess, (PBYTE*)(val.ClocalPlayer + m_flFlashDuration), &flashDur, sizeof(flashDur), NULL);
+	ReadProcessMemory(hProcess, (BYTE*)(val.ClocalPlayer + m_flFlashDuration), &flashDur, sizeof(flashDur), NULL);
 
 	if (flashDur > 0)
 	{
 		flashDur = 0;
-		WriteProcessMemory(hProcess, (PBYTE*)(val.ClocalPlayer + m_flFlashDuration), &flashDur, sizeof(flashDur), NULL);
+		WriteProcessMemory(hProcess, (BYTE*)(val.ClocalPlayer + m_flFlashDuration), &flashDur, sizeof(flashDur), NULL);
 	}
+}
+
+void shoot()
+{
+	INPUT leftMouseShoot = { 0 };
+	//press
+	leftMouseShoot.type = INPUT_MOUSE;
+	leftMouseShoot.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+	SendInput(1, &leftMouseShoot, sizeof(INPUT));
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(30));
+
+	// Release
+	leftMouseShoot.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+	SendInput(1, &leftMouseShoot, sizeof(INPUT));
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
 }
 
 void triggerBot()
 {
-	if (GetAsyncKeyState(F9_Key))
+	if (GetAsyncKeyState(VK_MENU) == KeyDown && !isAltHeld)
 	{
-		triggerbotStatus = !triggerbotStatus;
+		isAltHeld = true;
+		triggerbotStatus = true;
 		output();
-		Sleep(250);
+	}
+	if (GetAsyncKeyState(VK_MENU) == KeyUp && isAltHeld)
+	{
+		isAltHeld = false;
+		triggerbotStatus = false;
+		output();
 	}
 
 	if (!triggerbotStatus)
 	{
 		return;
 	}
-	ReadProcessMemory(hProcess, (PBYTE*)(val.ClocalPlayer + m_iCrosshairId), &crosshairID, sizeof(crosshairID), NULL);
+	ReadProcessMemory(hProcess, (BYTE*)(val.ClocalPlayer + m_iCrosshairId), &crosshairID, sizeof(crosshairID), NULL);
 	if (crosshairID != 0 && crosshairID < 32)
 	{
-		WriteProcessMemory(hProcess, (PBYTE*)(val.moduleBase + dwForceAttack), &t_true, sizeof(t_true), NULL);
-		WriteProcessMemory(hProcess, (PBYTE*)(val.moduleBase + dwForceAttack), &t_false, sizeof(t_false), NULL);
+		shoot();
 	}
 }
 
@@ -384,7 +377,7 @@ int main()
 	DWORD procID = GetProcId(L"csgo.exe");
 	if (procID == NULL)
 	{
-		std::cout << "Game not found" << std::endl;
+		std::cout << "Game not found \n";
 		Sleep(2000);
 	}
 	else
@@ -402,10 +395,13 @@ int main()
 		// Brightness
 		setBrightness();
 
-		while (!GetAsyncKeyState(F4_Key))
+		while (!GetAsyncKeyState(VK_F4))
 		{
 			// Get ClocalPlayer
-			ReadProcessMemory(hProcess, (PBYTE*)(val.moduleBase + dwLocalPlayer), &val.ClocalPlayer, sizeof(val.ClocalPlayer), NULL);
+			ReadProcessMemory(hProcess, (BYTE*)(val.moduleBase + dwLocalPlayer), &val.ClocalPlayer, sizeof(val.ClocalPlayer), NULL);
+
+			if (!val.ClocalPlayer) continue;
+
 			myTeam = getPlayerTeam();
 
 			// Triggerbot
@@ -415,11 +411,10 @@ int main()
 			bunnyHop();
 
 			// Glow
-			if (GetAsyncKeyState(F7_Key))
+			if (GetAsyncKeyState(VK_F7) & 1)
 			{
 				glowStatus = !glowStatus;
 				output();
-				Sleep(250);
 			}
 
 			if (glowStatus)
@@ -428,10 +423,10 @@ int main()
 			}
 
 			// Color/Brightness
-			if (GetAsyncKeyState(F8_Key))
+			if (GetAsyncKeyState(VK_F8) & 1)
 			{
 				brightnessStatus = !brightnessStatus;
-				if (brightnessStatus == true)
+				if (brightnessStatus)
 				{
 					setBrightness();
 				}
@@ -440,9 +435,12 @@ int main()
 					resetBrightness();
 				}
 				output();
-				Sleep(250);
 			}
-			setColor();
+
+			if (brightnessStatus)
+			{
+				setColor();
+			}
 
 			// Anti-Flash
 			antiFlash();
